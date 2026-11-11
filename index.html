@@ -12,17 +12,27 @@
     <title>FPGA Math Emulator & IEEE-754 Converter</title>
     <style>
         /* 1. Outer Page Background Matching Streamlit's #fef3c7 */
-        body {
-            background-color: #fef3c7 !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
+		body {
+			/* 1. Point to your local file and set a matching fallback color */
+			background-image: url('background.png');
+			background-color: #e2ecd9;                   /* Smooth fallback color while the image loads */
+
+			/* 2. Tell the browser to tile the pattern seamlessly */
+			background-repeat: repeat;
+
+			/* 3. Keep the background locked in place when scrolling */
+			background-attachment: fixed;
+
+			/* 4. Keep the image at its natural size so the lines stay crisp */
+			background-size: auto;
+
+			/* 5. Center your layout container */
+			font-family: 'Consolas', 'Courier New', monospace;
+			margin: 0;
+			padding: 40px 20px;
+			display: flex;
+			justify-content: center;
+		}
 
         /* Centered Header Tag Component Styling */
         .header-tag-container {
@@ -34,14 +44,14 @@
             border: 0px solid #ffffff;
             border-radius: 0px;
             padding: 0px 5px;
-            font-size: 12px;
+            font-size: 20px;
             background-color: #e0f2fe;
             color: #0369a1;
         }
 
         /* Centered Card Layout Matching Streamlit Container #e0f2fe */
         .calculator-card {
-            background-color: #e0f2fe !important;
+            background-color: #0f172a !important;
             border: 1px solid #bae6fd;
             border-radius: 12px;
             padding: 1.5rem;
@@ -51,6 +61,9 @@
             display: flex;
             flex-direction: column;
             gap: 0.6rem !important;
+            transform: scale(1.5);
+            transform-origin: top center;
+            margin-bottom: 80px;
         }
 
         /* Layout Grid and Input Components */
@@ -63,7 +76,7 @@
         .form-label {
             flex: 1;
             font-size: 1rem;
-            color: #1e293b;
+            color: #FACC15 !important;
         }
         .form-widget {
             flex: 4;
@@ -110,11 +123,11 @@
         }
         .config-group label {
             font-size: 0.85rem;
-            color: #475569;
+            color: #FACC15 !important;
         }
         .format-caption {
             font-size: 0.85rem;
-            color: #64748b;
+            color: #FACC15 !important;
             margin-bottom: 2px;
         }
         .radio-options {
