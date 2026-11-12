@@ -266,21 +266,40 @@
             <!-- Container Target to hold Help contents asynchronously -->
 
 			<div id="helpPlaceholder">
-			  <div class="help-panel" id="helpPanel">
-				<p class="help-text">
-				  This is a calculator that emulates the way in which an FPGA does math. It works with the five following data
-				  types: real, hexadecimal, 2's complement binary, IEEE-754 single and IEEE-754 double. It performs the following
-				  math operations: addition, subtraction, multiplication, division and modulo. It performs the following logic
-				  operations: AND, OR, XOR, NOT and 2's complement. This calculator can also be used to convert from one data type
-				  to another. Operations requiring two operands are entered as follows: operand1 operator operand2 (no spaces).
-				  Operations requiring one operand are entered as follows: operator operand (no spaces). The logic operations using
-				  the following operators: &amp; = AND, | = OR, ^ = XOR, ~ = NOT, ! = 2's complement. All operands are converted to binary
-				  before performing any math or logic operations. The results are then converted from binary to the selected output
-				  type. There is no need for 0x or 0b for hex and binary values. The integer size and fraction size values are used
-				  for hexadecimal entry and for the results of divisions.  Binary values can include a binary point.
-				</p>
-				<button type="button" id="btn_close_help" style="margin-top: 4px;">Close</button>
-			  </div>
+				<div class="help-panel" id="helpPanel">
+				  <div class="help-text">
+					<h3>How It Works</h3>
+					<p>
+					  This calculator emulates how an FPGA performs hardware math and bitwise logic. All operands are converted to binary before executing operations, and results are converted from binary into your selected output format. It can also be used as a direct data type converter.
+					</p>
+
+					<h3>Supported Data Types</h3>
+					<ul>
+					  <li><strong>Real:</strong> Standard signed decimal numbers.</li>
+					  <li><strong>Hexadecimal:</strong> Enter directly without a <code>0x</code> prefix.</li>
+					  <li><strong>2's Complement Binary:</strong> Enter directly without a <code>0b</code> prefix; supports a binary point (e.g., <code>101.11</code>) for Q-format fixed-point values.</li>
+					  <li><strong>IEEE-754 Single (FP32) &amp; Double (FP64):</strong> Standard floating-point representations.</li>
+					</ul>
+
+					<h3>Operations &amp; Syntax</h3>
+					<ul>
+					  <li><strong>Math Operations:</strong> Addition (<code>+</code>), subtraction (<code>-</code>), multiplication (<code>*</code>), division (<code>/</code>), and modulo (<code>%</code>).</li>
+					  <li><strong>Bitwise &amp; Logic Operations:</strong> AND (<code>&amp;</code>), OR (<code>|</code>), XOR (<code>^</code>), NOT (<code>~</code>), and 2's complement (<code>!</code>).</li>
+					  <li><strong>Formatting Rules:</strong> Enter two-operand expressions as <code>operand1operatoroperand2</code> and single-operand expressions as <code>operatoroperand</code> with <strong>no spaces</strong>.</li>
+					</ul>
+
+					<h3>Bit Width Configuration</h3>
+					<p>
+					  The <strong>Integer Bits</strong> and <strong>Fraction Bits</strong> settings control the fixed-point precision used for hexadecimal entries and division results.
+					</p>
+
+					<p style="margin-top: 8px;">
+					  Found a bug or have a feature request?
+					  <a href="https://github.com/bldillahunt/fpgaCalculatorWeb/issues" target="_blank" rel="noopener noreferrer">Report an issue on GitHub</a>.
+					</p>
+				  </div>
+				  <button type="button" id="btn_close_help" style="margin-top: 8px;">Close</button>
+				</div>
 			</div>
         </div>
     </div>
