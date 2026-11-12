@@ -201,7 +201,7 @@
 <body>
     <div>
         <div class="header-tag-container">
-            <span class="header-tag">FPGA Style Calculator</span>
+            <span class="header-tag">FPGA Math Emulator</span>
         </div>
 
         <div class="calculator-card">
@@ -264,7 +264,24 @@
             </div>
 
             <!-- Container Target to hold Help contents asynchronously -->
-            <div id="help_placeholder"></div>
+
+			<div id="helpPlaceholder">
+			  <div class="help-panel" id="helpPanel">
+				<p class="help-text">
+				  This is a calculator that emulates the way in which an FPGA does math. It works with the five following data
+				  types: real, hexadecimal, 2's complement binary, IEEE-754 single and IEEE-754 double. It performs the following
+				  math operations: addition, subtraction, multiplication, division and modulo. It performs the following logic
+				  operations: AND, OR, XOR, NOT and 2's complement. This calculator can also be used to convert from one data type
+				  to another. Operations requiring two operands are entered as follows: operand1 operator operand2 (no spaces).
+				  Operations requiring one operand are entered as follows: operator operand (no spaces). The logic operations using
+				  the following operators: &amp; = AND, | = OR, ^ = XOR, ~ = NOT, ! = 2's complement. All operands are converted to binary
+				  before performing any math or logic operations. The results are then converted from binary to the selected output
+				  type. There is no need for 0x or 0b for hex and binary values. The integer size and fraction size values are used
+				  for hexadecimal entry and for the results of divisions.
+				</p>
+				<button type="button" id="btn_close_help" style="margin-top: 4px;">Close</button>
+			  </div>
+			</div>
         </div>
     </div>
     <!-- Universal Bridge Script executing matching routing loops line-by-line -->
@@ -277,7 +294,7 @@
         const outputCode = document.getElementById('output_code');
         const intBitsInput = document.getElementById('int_bits');
         const fracBitsInput = document.getElementById('frac_bits');
-        const helpPlaceholder = document.getElementById('help_placeholder');
+        const helpPanel = document.getElementById('helpPanel');
 
         // Track global session variables locally to mirror Streamlit's state behavior
         let main_display_var = "";
@@ -352,31 +369,14 @@
             executeEvaluation('Enter', false, true);
         });
 
-		// Help Window Pop up layout generator block routing
 		document.getElementById('btn_help').addEventListener('click', function() {
-			helpPlaceholder.innerHTML = `
-				<div class="help-panel">
-					<p class="help-text">
-						This is a calculator that emulates the way in which an FPGA does math. It works with the five following data
-						types: real, hexadecimal, 2's complement binary, IEEE-754 single and IEEE-754 double. It performs the following
-						math operations: addition, subtraction, multiplication, division and modulo. It performs the following logic
-						operations: AND, OR, XOR, NOT and 2's complement. This calculator can also be used to convert from one data type
-						to another. Operations requiring two operands are entered as follows: operand1 operator operand2 (no spaces).
-						Operations requiring one operand are entered as follows: operator operand (no spaces). The logic operations using
-						the following operators: &amp; = AND, | = OR, ^ = XOR, ~ = NOT, ! = 2's complement. All operands are converted to binary
-						before performing any math or logic operations. The results are then converted from binary to the selected output
-						type. There is no need for 0x or 0b for hex and binary values. The integer size and fraction size values are used
-						for hexadecimal entry and for the results of divisions.
-					</p>
-					<button type="button" id="btn_close_help" style="margin-top: 4px;">Close</button>
-				</div>
-			`;
+		  	helpPanel.style.display = 'block';
+		});
 
-            // Inline closure logic mirror bindings
-            document.getElementById('btn_close_help').addEventListener('click', function() {
-                helpPlaceholder.innerHTML = "";
-            });
-        });
+		document.getElementById('btn_close_help').addEventListener('click', function() {
+		  	helpPanel.style.display = 'none';
+		});
+
     </script>
 </body>
 </html>
