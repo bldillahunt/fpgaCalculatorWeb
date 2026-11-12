@@ -277,7 +277,7 @@
 					<ul>
 					  <li><strong>Real:</strong> Standard signed decimal numbers.</li>
 					  <li><strong>Hexadecimal:</strong> Enter directly without a <code>0x</code> prefix.</li>
-					  <li><strong>2's Complement Binary:</strong> Enter directly without a <code>0b</code> prefix; supports a binary point (e.g., <code>101.11</code>) for Q-format fixed-point values.</li>
+					  <li><strong>2's Complement Binary:</strong> Enter directly without a <code>0b</code> prefix; supports a binary point (e.g., <code>101.11</code>) for Q-format fixed-point values. Short binary inputs are automatically <strong>sign-extended</strong> to match the required nibble/bit width for hexadecimal conversions and outputs (for example, <code>111</code> extends to <code>1111</code>, while <code>011</code> extends to <code>0011</code>).</li>
 					  <li><strong>IEEE-754 Single (FP32) &amp; Double (FP64):</strong> Standard floating-point representations.</li>
 					</ul>
 
