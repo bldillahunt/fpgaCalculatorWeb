@@ -295,6 +295,13 @@
 					  The <strong>Integer Bits</strong> and <strong>Fraction Bits</strong> settings control the fixed-point precision used for hexadecimal entries and division results.
 					</p>
 
+					<h3>Instant Output Switching:</h3>
+					<ul>
+					  <li>
+						Whenever a result is in the Output box, changing the <strong>Output Format</strong> radio button immediately converts that value without losing original precision. While an Output Format button is focused, use the <strong>Up/Down arrow keys</strong> to rapidly cycle through formats.
+					  </li>
+					</ul>
+
 					<p style="margin-top: 8px;">
 					  Found a bug or have a feature request?
 					  <a href="https://github.com/bldillahunt/fpgaCalculatorWeb/issues" target="_blank" rel="noopener noreferrer">Report an issue on GitHub</a>.
@@ -320,6 +327,8 @@
         // Track global session variables locally to mirror Streamlit's state behavior
         let main_display_var = "";
         let aux_display_var = "";
+        let currentOutputValue = "";
+        let currentOutputType = "";
 
         // Main Evaluation Processing Action
         function executeEvaluation(button_push_result = null, keyboard_enter_pressed = false, button_pressed = false) {
@@ -365,7 +374,28 @@
                     // Render back to UI
                     inputWin.value = main_display_var;
                     outputCode.textContent = aux_display_var;
+                    currentOutputValue = aux_display_var;
+                    currentOutputType = selectedOutputMode;
                 }
+                else if (button_push_result === 'Type') {
+                	if (aux_display_var !== "") {
+                		console.log('Input = ', aux_display_var, 'Input type = ', previousValue, 'Output type = ', selectedOutputMode);
+						const [updated_main, updated_aux] = compute_evaluation_step(
+							currentOutputValue,
+							currentOutputType,
+							selectedOutputMode,
+							int_bits,
+							frac_bits,
+							false
+						);
+//						main_display_var = updated_main;
+						aux_display_var = updated_aux;
+
+						// Render back to UI
+						inputWin.value = main_display_var;
+						outputCode.textContent = aux_display_var;
+					}
+				}
             } else if (button_push_result !== null) {
                 // The fallback 'else' route in your code: Appends the string value of the key directly
                 main_display_var += String(button_push_result);
@@ -390,6 +420,15 @@
             executeEvaluation('Enter', false, true);
         });
 
+		const initialChecked = document.querySelector('input[name="output_mode"]:checked');
+		let previousValue = initialChecked ? initialChecked.value : null;
+
+        // Trigger off of a change to the output format
+        document.getElementById('output_mode_container').addEventListener('change', function() {
+            executeEvaluation('Type', false, true);
+            const outputMode = document.querySelector('input[name="output_mode"]:checked')
+            previousValue = outputMode.value;
+        });
 		document.getElementById('btn_help').addEventListener('click', function() {
 		  	helpPanel.style.display = 'block';
 		});

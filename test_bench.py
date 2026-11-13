@@ -1,7 +1,7 @@
 import unittest 
 import itertools
-from binary_support import int_list_to_binary_string, binary_string_to_int_list, list_to_string
-from binary_conversions import binary_to_real
+from binary_support_tb import int_list_to_binary_string, binary_string_to_int_list, list_to_string
+from binary_conversions_tb import binary_to_real
 from itertools import chain
 import random  # NEW: Required for generating random fuzzing inputs
 import decimal

@@ -132,17 +132,17 @@ export function binary_to_real(n) {
         return "ERROR";
     }
 
-    let n_size = n_int_list.length;
+    const isNegative = n_int_list[0] === 1;
     let real_output;
 
     if (n_int_list.includes('.')) {
-        let binary_point_index = n_int_list.indexOf('.');
+        const binary_point_index = n_int_list.indexOf('.');
         let integer_list = n_int_list.slice(0, binary_point_index);
         let fraction_list = n_int_list.slice(binary_point_index + 1);
-        let n_reassembled = integer_list.concat(fraction_list);
+        const n_reassembled = integer_list.concat(fraction_list);
 
         let n_2s_comp, carry;
-        if (n_int_list[0] === 1) {
+        if (isNegative) {
             [n_2s_comp, carry] = twos_complement(n_reassembled);
         } else {
             n_2s_comp = n_reassembled;
@@ -151,118 +151,62 @@ export function binary_to_real(n) {
         integer_list = n_2s_comp.slice(0, binary_point_index);
         fraction_list = n_2s_comp.slice(binary_point_index);
 
-        let fraction_part = 0;
-        let fraction_list_size = fraction_list.length;
-
-        for (let i = 0; i < fraction_list_size; i++) {
-            if (fraction_list[i] === 1) {
-                fraction_part += Math.pow(2, -(i + 1));
-            }
-        }
-
-        let integer_part = 0;
-        let integer_list_size = integer_list.length;
-
-        if (debug_enable === true) {
-            console.log(list_to_string(n_int_list), integer_list_size, list_to_string(integer_list));
-        }
-
-        for (let i = 0; i < integer_list_size; i++) {
-            if (debug_enable === true) {
-                console.log("Made it here");
-            }
+        // 1. Exact arbitrary-width integer calculation with BigInt
+        let integer_part = 0n;
+        for (let i = 0; i < integer_list.length; i++) {
             if (integer_list[i] === 1) {
-                integer_part += Math.pow(2, integer_list_size - 1 - i);
+                integer_part += (1n << BigInt(integer_list.length - 1 - i));
             }
         }
 
-        // Emulating precise decimal matching logic
-        if (n_int_list[0] === 1) {
-            let integer_neg = 0 - integer_part;
-            let fraction_neg = 0 - fraction_part;
-            let integer_neg_string = String(integer_neg);
-            let fraction_neg_string = String(fraction_neg);
-
-            if (integer_neg !== 0 && fraction_neg !== 0) {
-                if (integer_neg_string.includes('.') && fraction_neg_string.includes('.')) {
-                    if (fraction_neg_string.includes('-')) {
-                        real_output = integer_neg_string + fraction_neg_string.substring(2);
-                    } else {
-                        real_output = integer_neg_string + fraction_neg_string.substring(1);
-                    }
-                } else {
-                    if (fraction_neg_string.includes('-')) {
-                        if (fraction_neg_string.includes('.')) {
-                            real_output = integer_neg_string + fraction_neg_string.substring(2);
-                        } else {
-                            real_output = integer_neg_string;
-                        }
-                    } else {
-                        if (fraction_neg_string.includes('.')) {
-                            real_output = integer_neg_string + fraction_neg_string.substring(2);
-                        } else {
-                            real_output = integer_neg_string;
-                        }
-                    }
-                }
-            } else if (integer_neg !== 0 && fraction_neg === 0) {
-                real_output = integer_neg_string;
-            } else if (integer_neg === 0 && fraction_neg !== 0) {
-                real_output = fraction_neg_string;
-            } else {
-                real_output = String(0);
+        // 2. Exact arbitrary-width fraction calculation with BigInt (2^-k = 5^k / 10^k)
+        const frac_len = fraction_list.length;
+        let fraction_scaled = 0n;
+        for (let i = 0; i < frac_len; i++) {
+            if (fraction_list[i] === 1) {
+                const bitPos = BigInt(i + 1);
+                const remaining = BigInt(frac_len - (i + 1));
+                fraction_scaled += (5n ** bitPos) * (10n ** remaining);
             }
+        }
+
+        const integer_string = integer_part.toString();
+
+        if (fraction_scaled === 0n) {
+            real_output = integer_string;
         } else {
-            let integer_string = String(integer_part);
-            let fraction_string = String(fraction_part);
-
-            if (integer_part !== 0 && fraction_part !== 0) {
-                if (integer_string.includes('.') && fraction_string.includes('.')) {
-                    real_output = integer_string + fraction_string.substring(2);
-                } else {
-                    if (fraction_string.includes('.')) {
-                        real_output = integer_string + fraction_string.substring(1);
-                    } else {
-                        real_output = integer_string;
-                    }
-                }
-            } else if (integer_part !== 0 && fraction_part === 0) {
-                real_output = integer_string;
-            } else if (integer_part === 0 && fraction_part !== 0) {
-                real_output = fraction_string;
-            } else {
-                real_output = String(0);
-            }
+            // Pad with leading zeros to match frac_len, then strip trailing zeros
+            let fraction_string = fraction_scaled.toString().padStart(frac_len, '0').replace(/0+$/, '');
+            real_output = `${integer_string}.${fraction_string}`;
         }
+
+        if (isNegative && real_output !== "0") {
+            real_output = "-" + real_output;
+        }
+
     } else {
-        let integer_list = n_int_list;
-        let integer_part = 0;
-        let fraction_part = 0;
-        let twos_comp_input = integer_list;
-
         let n_2s_comp, carry;
-        if (integer_list[0] === 1) {
-            [n_2s_comp, carry] = twos_complement(integer_list);
+        if (isNegative) {
+            [n_2s_comp, carry] = twos_complement(n_int_list);
         } else {
-            n_2s_comp = integer_list;
+            n_2s_comp = n_int_list;
         }
 
-        let integer_list_size = n_2s_comp.length;
+        let integer_part = 0n;
+        for (let i = 0; i < n_2s_comp.length; i++) {
+            if (n_2s_comp[i] === 1) {
+                integer_part += (1n << BigInt(n_2s_comp.length - 1 - i));
+            }
+        }
 
-		for (let i = 0; i < integer_list_size; i++) {
-			if (n_2s_comp[i] === 1) {
-				integer_part += Math.pow(2, integer_list_size - 1 - i);
-			}
-		}
-		if (n_int_list[0] === 1) {
-			let real_int_2s_comp = 0 - integer_part;
-			real_output = String(real_int_2s_comp);
-		} else {
-			real_output = String(integer_part);
-		}
-	}
-
-	return real_output;
+        if (isNegative && integer_part !== 0n) {
+            real_output = "-" + integer_part.toString();
+        } else {
+            real_output = integer_part.toString();
+        }
+    }
+//	real_output = String(Number(real_output));
+    return real_output;
 }
 export function binary_to_hexadecimal(n, lut) {
 	let n_size = n.length;
@@ -296,11 +240,11 @@ export function binary_to_hexadecimal(n, lut) {
 	let hex_string = [];
 	for (let i = 0; i < Math.floor(n_size / 4); i++) {
 		let bin_string_value = binary_value_string.substring(i * 4, i * 4 + 4);
-	for (let [col1, col2, col3] of lut) {
-		if (bin_string_value === col3) {
-		hex_string.push(col2);
+		for (let [col1, col2, col3] of lut) {
+			if (bin_string_value === col3) {
+				hex_string.push(col2);
+			}
 		}
-	}
 	}
 	return hex_string.join("");
 }

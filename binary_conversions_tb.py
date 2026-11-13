@@ -5,7 +5,7 @@ import math
 import numpy as np
 from dataclasses import dataclass
 from typing import List, Literal
-from binary_support import twos_complement_bin_rational, real_to_binary, hex_to_binary, int_list_to_binary_string, twos_complement, binary_string_to_int_list, list_to_string, remove_msbs
+from binary_support_tb import twos_complement_bin_rational, real_to_binary, hex_to_binary, int_list_to_binary_string, twos_complement, binary_string_to_int_list, list_to_string, remove_msbs
 from decimal import Decimal
 
 debug_enable = False
