@@ -21,8 +21,8 @@ export function real_to_twos_comp_binary(n, default_int_size, default_frac_size)
     return n_binary_2s_comp;
 }
 
-export function hexadecimal_to_binary(n, integer_size, fraction_size, lookup_table) {
-    if ((n.length > (integer_size + fraction_size)) || ((integer_size % 4) !== 0) || ((fraction_size % 4) !== 0)) {
+export function hexadecimal_to_binary(n, integer_size, lookup_table) {
+    if ((integer_size % 4) !== 0) {
         return "ERROR";
     } else {
         let binary_string = [];
@@ -31,21 +31,7 @@ export function hexadecimal_to_binary(n, integer_size, fraction_size, lookup_tab
         }
 
         let single_binary_string = binary_string.join("");
-        let integer_string = single_binary_string.substring(0, integer_size);
-        let fraction_string = single_binary_string.substring(integer_size);
-
-        let output_string;
-        if (fraction_size > 0) {
-            output_string = integer_string + '.' + fraction_string;
-        } else {
-            output_string = integer_string;
-        }
-
-        if (output_string.includes('.') && fraction_size === 0) {
-            return "Binary point in hex value";
-        } else {
-            return output_string;
-        }
+		return single_binary_string;
     }
 }
 
@@ -81,7 +67,7 @@ export function ieee754_hex_to_binary(ieee754_hex, p, lookup_table) {
             } else {
                 binary_int_twos_comp = binary_int_list;
             }
-            binary_output = binary_int_twos_comp.concat(['.']).concat([0]);
+            binary_output = binary_int_twos_comp;
         } else if (shift_value <= p.mantissa_size) {
             let binary_value = '01' + mantissa;
             let binary_int_list = binary_string_to_int_list(binary_value);
@@ -91,7 +77,18 @@ export function ieee754_hex_to_binary(ieee754_hex, p, lookup_table) {
             } else {
                 binary_int_twos_comp = binary_int_list;
             }
-            binary_output = binary_int_twos_comp.slice(0, shift_value + 2).concat(['.']).concat(binary_int_twos_comp.slice(shift_value + 2));
+
+            let integer_part = binary_int_twos_comp.slice(0, shift_value + 2);
+            let fraction_part = binary_int_twos_comp.slice(shift_value + 2);
+
+            if (fraction_part.includes(1))
+            {
+            	binary_output = integer_part.concat(['.']).concat(fraction_part);
+			}
+			else
+			{
+				binary_output = integer_part;
+			}
         }
     } else if (shift_value < 0) {
         let binary_value = '0'.repeat(Math.abs(shift_value) - 1) + '1' + mantissa;
@@ -113,8 +110,20 @@ export function ieee754_hex_to_binary(ieee754_hex, p, lookup_table) {
         } else {
             binary_int_twos_comp = binary_int_list;
         }
-        binary_output = binary_int_twos_comp.slice(0, 2).concat(['.']).concat(binary_int_twos_comp.slice(2));
+
+		let integer_part = binary_int_twos_comp.slice(0, 2);
+		let fraction_part = concat(binary_int_twos_comp.slice(2));
+
+		if (fraction_part.includes(1))
+		{
+			binary_output = integer_part.concat(['.']).concat(fraction_part);
+		}
+		else
+		{
+			binary_output = integer_part;
+		}
     }
+//    console.log("Float to binary = ", binary_output)
     return binary_output;
 }
 

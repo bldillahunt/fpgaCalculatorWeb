@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="google-site-verification" content="Mac4i-ckEkKILZNhEmu_il7-JWXkpQ7roV_7Nqqv4So">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Arbitrary-precision calculator for FPGA engineers. Supports IEEE 754 floating-point, signed two's complement binary, and custom fixed-point binary math.">
+    <meta name="keywords" content="FPGA calculator, programmer's calculator, IEEE 754 converter, two's complement calculator, fixed point binary point">
+    <meta name="author" content="bldillahunt">
+    <meta property="og:title" content="FPGA & Programmer's Calculator (Desktop Version)">
+    <meta property="og:description" content="Arbitrary-precision binary math, IEEE 754 precision, and signed two's complement calculations.">
+	<link rel="canonical" href="https://bldillahunt.github.io/fpgaCalculatorWeb">
+	<link rel="alternate" href="https://bldillahunt.github.io/fpgaCalculatorWebMobile">
+    <title>FPGA Math Emulator & IEEE-754 Converter</title>
+    <style>
+        /* 1. Outer Page Background Matching Streamlit's #fef3c7 */
+		body {
+			/* 1. Point to your local file and set a matching fallback color */
+			background-image: url('background.png');
+			background-color: #e2ecd9;                   /* Smooth fallback color while the image loads */
+
+			/* 2. Tell the browser to tile the pattern seamlessly */
+			background-repeat: repeat;
+
+			/* 3. Keep the background locked in place when scrolling */
+			background-attachment: fixed;
+
+			/* 4. Keep the image at its natural size so the lines stay crisp */
+			background-size: auto;
+
+			/* 5. Center your layout container */
+			font-family: 'Consolas', 'Courier New', monospace;
+			margin: 0;
+			padding: 40px 20px;
+			display: flex;
+			justify-content: center;
+		}
+
+        /* Centered Header Tag Component Styling */
+        .header-tag-container {
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .header-tag {
+            display: inline-block;
+            border: 0px solid #ffffff;
+            border-radius: 0px;
+            padding: 0px 5px;
+            font-size: 20px;
+            background-color: #e0f2fe;
+            color: #0369a1;
+        }
+
+        /* Centered Card Layout Matching Streamlit Container #e0f2fe */
+        .calculator-card {
+            background-color: #0f172a !important;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 550px;
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem !important;
+            transform: scale(1.5);
+            transform-origin: top center;
+            margin-bottom: 80px;
+        }
+
+        /* Layout Grid and Input Components */
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+        }
+        .form-label {
+            flex: 1;
+            font-size: 1rem;
+            color: #FACC15 !important;
+        }
+        .form-widget {
+            flex: 4;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 1rem;
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+
+        /* Tightened Output Code Window Box */
+        .output-window pre {
+            margin: 0px !important;
+            padding: 6px 10px !important;
+            background-color: #ffffff !important;
+            border-radius: 6px !important;
+            border: 1px solid #cbd5e1;
+            min-height: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        .output-window code {
+            font-family: monospace !important;
+            font-size: 1.1rem !important;
+            color: #0f172a;
+            white-space: pre-wrap;
+        }
+
+        /* Columns Split and Selection Options Placement */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            width: 100%;
+        }
+        .config-group, .format-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+        .config-group label {
+            font-size: 0.85rem;
+            color: #FACC15 !important;
+        }
+        .format-caption {
+            font-size: 0.85rem;
+            color: #FACC15 !important;
+            margin-bottom: 2px;
+        }
+        .radio-options {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        /* Bottom Row Control Bar Components */
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background-color: #ffffff;
+            color: #0f172a;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.1s;
+        }
+        button:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Dynamically Injected Help Popup Styling Section */
+        .help-panel {
+            background-color: #ffffff;
+            border-radius: 6px;
+            padding: 10px;
+            border-left: 4px solid #3b82f6;
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .help-code {
+            font-family: monospace;
+            background-color: #f1f5f9;
+            padding: 6px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            white-space: pre;
+        }
+        .help-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.85rem;
+            color: #334155;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="header-tag-container">
+            <span class="header-tag">FPGA Math Emulator</span>
+        </div>
+
+        <div class="calculator-card">
+            <!-- 1. Main Displays Section Mapping Streamlit Containers -->
+            <div class="form-row">
+                <div class="form-label">Input</div>
+                <div class="form-widget">
+                    <input type="text" id="input_win" value="">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-label">Output</div>
+                <div class="form-widget output-window">
+                    <pre><code id="output_code"></code></pre>
+                </div>
+            </div>
+
+            <!-- 2. Bit Configuration Width Boundaries Panel -->
+            <div class="grid-2col">
+                <div class="config-group">
+                    <label for="int_bits">Integer Bits:</label>
+                    <input type="text" id="int_bits" value="16">
+                </div>
+                <div class="config-group">
+                    <label for="frac_bits">Fraction Bits:</label>
+                    <input type="text" id="frac_bits" value="16">
+                </div>
+            </div>
+
+            <!-- 3. Radio Input/Output Target Formats Selection Frame -->
+            <div class="grid-2col">
+                <div class="format-group">
+                    <span class="format-caption">Input Format</span>
+                    <div class="radio-options" id="input_mode_container">
+                        <label class="radio-item"><input type="radio" name="input_mode" value="REAL" checked> Real</label>
+                        <label class="radio-item"><input type="radio" name="input_mode" value="HEX"> Hex</label>
+                        <label class="radio-item"><input type="radio" name="input_mode" value="BIN"> 2's Comp Bin</label>
+                        <label class="radio-item"><input type="radio" name="input_mode" value="FP32"> IEEE-754 Single</label>
+                        <label class="radio-item"><input type="radio" name="input_mode" value="FP64"> IEEE-754 Double</label>
+                    </div>
+                </div>
+                <div class="format-group">
+                    <span class="format-caption">Output Format</span>
+                    <div class="radio-options" id="output_mode_container">
+                        <label class="radio-item"><input type="radio" name="output_mode" value="REAL" checked> Real</label>
+                        <label class="radio-item"><input type="radio" name="output_mode" value="HEX"> Hex</label>
+                        <label class="radio-item"><input type="radio" name="output_mode" value="BIN"> 2's Comp Bin</label>
+                        <label class="radio-item"><input type="radio" name="output_mode" value="FP32"> IEEE-754 Single</label>
+                        <label class="radio-item"><input type="radio" name="output_mode" value="FP64"> IEEE-754 Double</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Lower Operational Executions Bar Layout Routing -->
+            <div class="button-row">
+                <button type="button" id="btn_reset">Reset</button>
+                <button type="button" id="btn_enter">Enter</button>
+                <button type="button" id="btn_help">Help</button>
+            </div>
+
+            <!-- Container Target to hold Help contents asynchronously -->
+
+			<div id="helpPlaceholder">
+				<div class="help-panel" id="helpPanel">
+				  <div class="help-text">
+					<h3>How It Works</h3>
+					<p>
+					  This calculator emulates how an FPGA performs hardware math and bitwise logic. All operands are converted to binary before executing operations, and results are converted from binary into your selected output format. It can also be used as a direct data type converter.
+					</p>
+
+					<h3>Supported Data Types</h3>
+					<ul>
+					  <li><strong>Real:</strong> Standard signed decimal numbers.</li>
+					  <li><strong>Hexadecimal:</strong> Enter directly without a <code>0x</code> prefix.</li>
+					  <li><strong>2's Complement Binary:</strong> Enter directly without a <code>0b</code> prefix; supports a binary point (e.g., <code>101.11</code>) for Q-format fixed-point values. Short binary inputs are automatically <strong>sign-extended</strong> to match the required nibble/bit width for hexadecimal conversions and outputs (for example, <code>111</code> extends to <code>1111</code>, while <code>011</code> extends to <code>0011</code>).</li>
+					  <li><strong>IEEE-754 Single (FP32) &amp; Double (FP64):</strong> Standard floating-point representations.</li>
+					</ul>
+
+					<h3>Operations &amp; Syntax</h3>
+					<ul>
+					  <li><strong>Math Operations:</strong> Addition (<code>+</code>), subtraction (<code>-</code>), multiplication (<code>*</code>), division (<code>/</code>), and modulo (<code>%</code>).</li>
+					  <li><strong>Bitwise &amp; Logic Operations:</strong> AND (<code>&amp;</code>), OR (<code>|</code>), XOR (<code>^</code>), NOT (<code>~</code>), and 2's complement (<code>!</code>).</li>
+					  <li><strong>Formatting Rules:</strong> Enter two-operand expressions as <code>operand1 operator operand2</code> and single-operand expressions as <code>operator operand</code> with <strong>no spaces</strong>.</li>
+					</ul>
+
+					<h3>Bit Width Configuration</h3>
+					<p>
+					  The <strong>Integer Bits</strong> and <strong>Fraction Bits</strong> settings control the fixed-point precision used for hexadecimal entries and division results.
+					</p>
+
+					<h3>Instant Output Switching:</h3>
+					<ul>
+					  <li>
+						Whenever a result is in the Output box, changing the <strong>Output Format</strong> radio button immediately converts that value without losing original precision. While an Output Format button is focused, use the <strong>Up/Down arrow keys</strong> to rapidly cycle through formats.
+					  </li>
+					</ul>
+
+					<p style="margin-top: 8px;">
+					  Found a bug or have a feature request?
+					  <a href="https://github.com/bldillahunt/fpgaCalculatorWeb/issues" target="_blank" rel="noopener noreferrer">Report an issue on GitHub</a>.
+					</p>
+				  </div>
+				  <button type="button" id="btn_close_help" style="margin-top: 8px;">Close</button>
+				</div>
+			</div>
+        </div>
+    </div>
+    <!-- Universal Bridge Script executing matching routing loops line-by-line -->
+    <!-- Universal Bridge Script executing matching routing loops line-by-line -->
+    <script type="module">
+        import { compute_evaluation_step } from './main_alu.js';
+
+        // Interface Variable Bindings Tracking Session state
+        const inputWin = document.getElementById('input_win');
+        const outputCode = document.getElementById('output_code');
+        const intBitsInput = document.getElementById('int_bits');
+        const fracBitsInput = document.getElementById('frac_bits');
+        const helpPanel = document.getElementById('helpPanel');
+
+        // Track global session variables locally to mirror Streamlit's state behavior
+        let main_display_var = "";
+        let aux_display_var = "";
+        let currentOutputValue = "";
+        let currentOutputType = "";
+
+        // Main Evaluation Processing Action
+        function executeEvaluation(button_push_result = null, keyboard_enter_pressed = false, button_pressed = false) {
+            // Synchronize local variable with current UI input field text changes
+            let typed_input = inputWin.value;
+            if (typed_input !== main_display_var) {
+                main_display_var = typed_input;
+                keyboard_enter_pressed = true;
+            }
+
+            const int_bits = parseInt(intBitsInput.value, 10) || 16;
+            const frac_bits = parseInt(fracBitsInput.value, 10) || 16;
+
+            const selectedInputMode = document.querySelector('input[name="input_mode"]:checked').value;
+            const selectedOutputMode = document.querySelector('input[name="output_mode"]:checked').value;
+
+            // --- Process Actions Mirroring Streamlit Logic Blocks Exactly ---
+            if (button_push_result === 'Reset' || keyboard_enter_pressed || button_pressed) {
+
+                if (keyboard_enter_pressed && !button_push_result) {
+                    button_push_result = 'Enter';
+                }
+
+                if (button_push_result === 'Reset') {
+                    main_display_var = "";
+                    aux_display_var = "";
+                    inputWin.value = "";
+                    outputCode.textContent = "";
+                    helpPlaceholder.innerHTML = "";
+                }
+                else if (button_push_result === 'Enter') {
+                    const [updated_main, updated_aux] = compute_evaluation_step(
+                        main_display_var,
+                        selectedInputMode,
+                        selectedOutputMode,
+                        int_bits,
+                        frac_bits,
+                        false
+                    );
+                    main_display_var = updated_main;
+                    aux_display_var = updated_aux;
+
+                    // Render back to UI
+                    inputWin.value = main_display_var;
+                    outputCode.textContent = aux_display_var;
+                    currentOutputValue = aux_display_var;
+                    currentOutputType = selectedOutputMode;
+                }
+                else if (button_push_result === 'Type') {
+                	if (aux_display_var !== "") {
+                		console.log('Input = ', aux_display_var, 'Input type = ', previousValue, 'Output type = ', selectedOutputMode);
+						const [updated_main, updated_aux] = compute_evaluation_step(
+							currentOutputValue,
+							currentOutputType,
+							selectedOutputMode,
+							int_bits,
+							frac_bits,
+							false
+						);
+//						main_display_var = updated_main;
+						aux_display_var = updated_aux;
+
+						// Render back to UI
+						inputWin.value = main_display_var;
+						outputCode.textContent = aux_display_var;
+					}
+				}
+            } else if (button_push_result !== null) {
+                // The fallback 'else' route in your code: Appends the string value of the key directly
+                main_display_var += String(button_push_result);
+                inputWin.value = main_display_var;
+            }
+        }
+
+        // Catch Native Keyboard Enter actions within input text space bounds
+        inputWin.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                executeEvaluation(null, true, false);
+            }
+        });
+
+        // Reset Interface Loop Handler
+        document.getElementById('btn_reset').addEventListener('click', function() {
+            executeEvaluation('Reset', false, true);
+        });
+
+        // Trigger Input Submission Gate
+        document.getElementById('btn_enter').addEventListener('click', function() {
+            executeEvaluation('Enter', false, true);
+        });
+
+		const initialChecked = document.querySelector('input[name="output_mode"]:checked');
+		let previousValue = initialChecked ? initialChecked.value : null;
+
+        // Trigger off of a change to the output format
+        document.getElementById('output_mode_container').addEventListener('change', function() {
+            executeEvaluation('Type', false, true);
+            const outputMode = document.querySelector('input[name="output_mode"]:checked')
+            previousValue = outputMode.value;
+        });
+		document.getElementById('btn_help').addEventListener('click', function() {
+		  	helpPanel.style.display = 'block';
+		});
+
+		document.getElementById('btn_close_help').addEventListener('click', function() {
+		  	helpPanel.style.display = 'none';
+		});
+
+    </script>
+</body>
+</html>

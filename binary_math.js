@@ -241,13 +241,23 @@ export function binary_subtraction(A, B) {
         difference = difference_sum;
     }
 
-    let binary_point_index = difference.length - fraction_size;
-    let difference_bin_point = difference.slice(0, binary_point_index).concat(['.']).concat(difference.slice(binary_point_index));
+	let a_has_binary_point = A.includes('.');
+	let b_has_binary_point = B.includes('.');
+	let difference_bin_point;
+
+	if ((a_has_binary_point) || (b_has_binary_point)) {
+		let binary_point_index = difference.length - fraction_size;
+		difference_bin_point = difference.slice(0, binary_point_index).concat(['.']).concat(difference.slice(binary_point_index));
+	}
+	else
+	{
+		difference_bin_point = difference;
+	}
 
     if (enable_print_statements === true) {
-        console.log(list_to_string(A), list_to_string(B));
-        console.log(list_to_string(operand_a_padded), list_to_string(operand_b_padded), a_fraction_size, b_fraction_size);
-        console.log(list_to_string(difference));
+		console.log(list_to_string(A), list_to_string(B));
+		console.log(list_to_string(operand_a_padded), list_to_string(operand_b_padded), a_fraction_size, b_fraction_size);
+		console.log(list_to_string(difference_bin_point));
     }
 
     return difference_bin_point;

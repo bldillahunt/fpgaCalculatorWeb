@@ -321,7 +321,12 @@ export function twos_complement(n_int_list) {
 	return [n_sum, n_carry];
 }
 export function twos_complement_bin_rational(n) {
-	let binary_point_index = n.indexOf('.');
+	let binary_point_index = 0;
+	let includes_radix = n.includes('.');
+	if (includes_radix) {
+		binary_point_index = n.indexOf('.');
+	}
+
 	let size = n.length;
 	let fraction_size = 0;
 	if (binary_point_index > 0 && binary_point_index < size) {
@@ -362,7 +367,16 @@ export function twos_complement_bin_rational(n) {
 		}
 	}
 	n_inverted_sum.push(carry | n_inverted_sum[n_inverted_sum.length - 1]);
-	let twos_comp_sum = n_inverted_sum.slice(0, binary_point_location).concat(['.']).concat(n_inverted_sum.slice(binary_point_location));
+
+	let twos_comp_sum = 0;
+
+	if (includes_radix) {
+		twos_comp_sum = n_inverted_sum.slice(0, binary_point_location).concat(['.']).concat(n_inverted_sum.slice(binary_point_location));
+	}
+	else
+	{
+		twos_comp_sum = n_inverted_sum;
+	}
 	twos_comp_sum.reverse();
 	return twos_comp_sum;
 }
@@ -513,6 +527,7 @@ export function binary_point_alignment(operand_a, operand_b, enable_twos_complem
 		operand_a_padded = operand_a_padded_left;
 		operand_b_padded = operand_b_padded_left;
 	}
+//	console.log(operand_a_padded, operand_b_padded, a_fraction_size, b_fraction_size)
 	return [operand_a_padded, operand_b_padded, a_fraction_size, b_fraction_size];
 }
 export function add_msbs(A, B) {
